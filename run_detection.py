@@ -1,5 +1,5 @@
 import fastplotlib as fpl
-import numpy as np
+# import numpy as np
 # import cv2
 
 figure = fpl.Figure()
