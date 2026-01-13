@@ -1,42 +1,63 @@
 import fastplotlib as fpl
-from fastplotlib.ui import EdgeWindow
-from imgui_bundle import imgui
+
+import argparse
+from pathlib import Path
 # import numpy as np
 # import cv2
 
-figure = fpl.Figure(size=(1100, 900), names=["animal_id"])
+from animal_soup_lite import Session, ImguiBehavior, ImguiSlider
+
+figure = fpl.Figure(size=(1100, 900))
 
 figure.show()
 
 figure[0, 0].axes.visible = False
+figure[0, 0].title = "Behavior Detection"
 
 
-class ImguiExample(EdgeWindow):
-    def __init__(self, figure, size, location, title):
-        super().__init__(figure=figure, size=size, location=location, title=title)
-
-    def update(self):
-        _changed_alpha, _new_alpha = imgui.slider_float(
-            "alpha", v=0.5, v_min=0.0, v_max=1.0
-        )
-
-        # reset button
-        if imgui.button("reset"):
-            pass
-
-
-# make GUI instance
-gui = ImguiExample(
-    figure,  # the figure this GUI instance should live inside
-    size=275,  # width or height of the GUI window within the figure
-    location="right",
-    title="Behavior Detection",  # window title
-)
-
-# add it to the figure
-figure.add_gui(gui)
+figure.show()
 
 
 if __name__ == "__main__":
-    # TODO: parse command line args to get data dir
+    # parse the command line args to get the video dir
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "video_dir",
+        type=str,
+        help="Path to video directory (i.e. /reaganbullins2/ProjectionProjection/rb50/videos/)",
+    )
+
+    args = parser.parse_args()
+
+    # check if video dir exists
+    video_dir = Path(args.video_dir)
+    if not video_dir.is_dir():
+        raise FileNotFoundError(f"Video directory {video_dir} not found")
+
+    session = Session(video_dir)
+
+    # make GUI instance
+    gui = ImguiBehavior(
+        figure,  # the figure this GUI instance should live inside
+        size=275,  # width or height of the GUI window within the figure
+        location="right",
+        title="Behavior Detection",  # window title
+        session=session,
+    )
+
+    gui2 = ImguiSlider(
+        figure,  # the figure this GUI instance should live inside
+        size=75,  # width or height of the GUI window within the figure
+        location="bottom",
+        title=" ",  # window title
+        session=session,
+    )
+
+    # add it to the figure
+    figure.add_gui(gui)
+    figure.add_gui(gui2)
+
+    figure[0, 0].auto_scale()
+    figure[0, 0].camera.local.y *= -1
+
     fpl.loop.run()
