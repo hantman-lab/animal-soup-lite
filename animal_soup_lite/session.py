@@ -1,4 +1,6 @@
 from pathlib import Path
+from tqdm import tqdm
+import cv2
 
 from animal_soup_lite.output import DetectionLogger
 from animal_soup_lite.utils import LazyVideo
@@ -24,7 +26,7 @@ class Session:
 
     @property
     def detect_logger(self):
-        return self._detect_logger.df
+        return self._detect_logger
 
     @property
     def trials(self):
@@ -51,6 +53,7 @@ class Session:
         # only get the side trials
         for f in self.video_dir.glob("*_side_v*.avi"):
             trials.append(str(f)[-7:-4])
+        trials.sort()
         return trials
 
     def get_trial(self, trial_no: str):
@@ -58,3 +61,14 @@ class Session:
         trial_path = next(self.video_dir.glob(f"*_side_v{trial_no}*.avi"))
         video = LazyVideo(trial_path)
         return video
+
+    def detect(self, crop):
+        for i in tqdm(range(500, 800)):
+            frame = self.current_video[i]
+            frame = frame[crop[2] : crop[3], crop[0] : crop[1]]
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            if (frame != 0).sum() >= 180:
+                print("LIFT DETECTED")
+                break
+        self.detect_logger.log(self.current_trial, i)

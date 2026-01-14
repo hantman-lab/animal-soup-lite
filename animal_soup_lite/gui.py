@@ -1,5 +1,9 @@
 from fastplotlib.ui import EdgeWindow
+from fastplotlib import RectangleSelector
 from imgui_bundle import imgui
+from animal_soup_lite.utils import DefaultCrops
+
+FRAME_NUM = 0
 
 
 class ImguiBehavior(EdgeWindow):
@@ -14,7 +18,12 @@ class ImguiBehavior(EdgeWindow):
 
         self._figure[0, 0].add_image(self.current_video[0], cmap="gray", name="frame")
 
+        self.current_crop = DefaultCrops.LIFT.value
+
+        self.rect_selector = None
+
     def update(self):
+        global FRAME_NUM
         data_options = self.session.trials
 
         imgui.text("Trial")
@@ -24,10 +33,13 @@ class ImguiBehavior(EdgeWindow):
         if selected:
             self.current_index = index
             self.session.current_trial = index
+            FRAME_NUM = 0
+            self._figure[0, 0]["frame"].data[:] = self.session.current_video[FRAME_NUM]
 
         # reset button
         if imgui.button("Detect"):
-            pass
+            print(f"Detecting for trial: {self.session.current_trial}")
+            self.session.detect(self.current_crop)
 
         imgui.same_line()
 
@@ -37,21 +49,47 @@ class ImguiBehavior(EdgeWindow):
 
         # reset button
         if imgui.button("View Crop"):
-            pass
+            # check to see if rectangle selector already exists
+            if self.rect_selector is None:
+                self.rect_selector = RectangleSelector(
+                    selection=self.current_crop,
+                    limits=(
+                        0,
+                        self.current_video[0].shape[1],
+                        0,
+                        self.current_video[0].shape[0],
+                    ),
+                    resizable=False,
+                )
+                self._figure[0, 0].add_graphic(self.rect_selector, center=False)
+            #  self._figure[0, 0].auto_scale()
+            else:
+                self.rect_selector.selection = self.current_crop
 
         imgui.same_line()
 
         # reset button
         if imgui.button("Select Crop"):
-            pass
+            if self.rect_selector is None:
+                return
+            print("new crop")
+            self.current_crop = self.rect_selector.selection
 
         imgui.same_line()
 
         if imgui.button("Reset Crop"):
-            pass
+            if self.rect_selector is None:
+                return
+            self.rect_selector.selection = DefaultCrops.LIFT.value
 
         if imgui.button("View Detection"):
-            pass
+            frame_detected = self.session.detect_logger.df.loc[
+                self.current_index, "frame_detected"
+            ]
+            FRAME_NUM = frame_detected
+            self._figure[0, 0]["frame"].data[:] = self.session.current_video[
+                frame_detected
+            ]
 
 
 class ImguiSlider(EdgeWindow):
@@ -61,11 +99,17 @@ class ImguiSlider(EdgeWindow):
         self.session = session
 
     def update(self):
+        global FRAME_NUM
         imgui.text("Frame")
         imgui.same_line()
         changed_index, new_index = imgui.slider_int(
-            "##Frame", v=0, v_min=0, v_max=self.session.current_video.shape[0] - 1
+            "##Frame",
+            v=FRAME_NUM,
+            v_min=0,
+            v_max=self.session.current_video.shape[0] - 1,
         )
 
         if changed_index:
-            self._figure[0, 0]["frame"].data = self.session.current_video[new_index]
+            self._figure[0, 0]["frame"].data[:] = self.session.current_video[new_index]
+            self._figure[0, 0].auto_scale()
+            FRAME_NUM = new_index

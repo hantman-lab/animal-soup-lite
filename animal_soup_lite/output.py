@@ -15,7 +15,8 @@ class DetectionLogger:
         for t in self.trials:
             self.df.loc[len(self.df.index)] = [t, None, None]
 
-    def detect(self, trial: str, frame_detected: int):
+    def log(self, trial: str, frame_detected: int):
+        print("Saving frame detected for trial {}".format(trial))
         # convert frame to ms
         ms = int((frame_detected - 500) / 2)
         # get df ix of trial being detected

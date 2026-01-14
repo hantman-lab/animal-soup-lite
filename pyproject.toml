@@ -19,7 +19,8 @@ dependencies = [
     "fastplotlib",
     "opencv-python",
     "decord",
-    "pandas"
+    "pandas",
+    "tqdm"
 ]
 
 [project.optional-dependencies]
