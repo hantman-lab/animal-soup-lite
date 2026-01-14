@@ -71,17 +71,7 @@ class ImguiBehavior(EdgeWindow):
         # reset button
         if imgui.button("Select Crop"):
             if self.rect_selector is None:
-                self.rect_selector = RectangleSelector(
-                    selection=self.current_crop,
-                    limits=(
-                        0,
-                        self.current_video[0].shape[1],
-                        0,
-                        self.current_video[0].shape[0],
-                    ),
-                    resizable=False,
-                )
-                self._figure[0, 0].add_graphic(self.rect_selector, center=False)
+                return
             print("new crop")
             self.current_crop = [int(_) for _ in self.rect_selector.selection]
 
