@@ -1,21 +1,30 @@
 from pathlib import Path
 
+from animal_soup_lite.output import DetectionLogger
 from animal_soup_lite.utils import LazyVideo
 
 
 class Session:
-    def __init__(self, video_dir: Path):
+    def __init__(self, video_dir: Path, output_dir: Path):
         """Class for managing all of the current sessions video data."""
 
         self._video_dir = video_dir
+        self._output_dir = output_dir
         self._trials = self._compute_trials()
 
         self._current_trial = self._trials[0]
         self._current_video = self.get_trial(self._current_trial)
 
+        self._detect_logger = DetectionLogger(self._output_dir, self._trials)
+        print(self._detect_logger.df.head(n=8))
+
     @property
     def video_dir(self):
         return self._video_dir
+
+    @property
+    def detect_logger(self):
+        return self._detect_logger.df
 
     @property
     def trials(self):
@@ -28,8 +37,8 @@ class Session:
     @current_trial.setter
     def current_trial(self, index: int):
         self._current_trial = self._trials[index]
+        print("Changing video")
         self._current_video = self.get_trial(self._current_trial)
-        print(self._current_video.shape)
 
     @property
     def current_video(self):

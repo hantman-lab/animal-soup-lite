@@ -18,7 +18,8 @@ dependencies = [
     "pygfx==0.15.3",
     "fastplotlib",
     "opencv-python",
-    "decord"
+    "decord",
+    "pandas"
 ]
 
 [project.optional-dependencies]

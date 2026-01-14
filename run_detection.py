@@ -2,7 +2,7 @@ import fastplotlib as fpl
 
 import argparse
 from pathlib import Path
-# import numpy as np
+import numpy as np
 # import cv2
 
 from animal_soup_lite import Session, ImguiBehavior, ImguiSlider
@@ -24,8 +24,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "video_dir",
         type=str,
-        help="Path to video directory (i.e. /reaganbullins2/ProjectionProjection/rb50/videos/)",
+        help="Path to video directory (i.e. /reaganbullins2/ProjectionProjection/rb50/20250125/videos/)",
     )
+    parser.add_argument("output_dir", type=str, help="Path to output directory")
 
     args = parser.parse_args()
 
@@ -34,7 +35,11 @@ if __name__ == "__main__":
     if not video_dir.is_dir():
         raise FileNotFoundError(f"Video directory {video_dir} not found")
 
-    session = Session(video_dir)
+    output_dir = Path(args.output_dir)
+    if not video_dir.is_dir():
+        raise FileNotFoundError(f"Video directory {video_dir} not found")
+
+    session = Session(video_dir, output_dir)
 
     # make GUI instance
     gui = ImguiBehavior(
@@ -58,6 +63,6 @@ if __name__ == "__main__":
     figure.add_gui(gui2)
 
     figure[0, 0].auto_scale()
-    figure[0, 0].camera.local.y *= -1
+    figure[0, 0].camera.set_state({"scale": np.array([1, -1, 1])})
 
     fpl.loop.run()
