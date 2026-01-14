@@ -31,3 +31,4 @@ class DetectionLogger:
                 f"detect_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.pkl"
             )
         )
+        print(self.df.head(n=8))

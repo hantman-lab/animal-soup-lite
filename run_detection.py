@@ -3,7 +3,6 @@ import fastplotlib as fpl
 import argparse
 from pathlib import Path
 import numpy as np
-# import cv2
 
 from animal_soup_lite import Session, ImguiBehavior, ImguiSlider
 

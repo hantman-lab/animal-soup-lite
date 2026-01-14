@@ -45,7 +45,8 @@ class ImguiBehavior(EdgeWindow):
 
         # reset button
         if imgui.button("Detect All"):
-            pass
+            print("DETECTING ALL TRIALS")
+            self.session.detect_all(self.current_crop)
 
         # reset button
         if imgui.button("View Crop"):
@@ -62,7 +63,6 @@ class ImguiBehavior(EdgeWindow):
                     resizable=False,
                 )
                 self._figure[0, 0].add_graphic(self.rect_selector, center=False)
-            #  self._figure[0, 0].auto_scale()
             else:
                 self.rect_selector.selection = self.current_crop
 
@@ -90,6 +90,10 @@ class ImguiBehavior(EdgeWindow):
             self._figure[0, 0]["frame"].data[:] = self.session.current_video[
                 frame_detected
             ]
+
+        if imgui.button("Save"):
+            print("SAVING")
+            self.session.detect_logger.save()
 
 
 class ImguiSlider(EdgeWindow):
