@@ -63,7 +63,7 @@ class Session:
         return video
 
     def detect(self, crop):
-        for i in tqdm(range(500, 800)):
+        for i in tqdm(range(550, 800)):
             frame = self.current_video[i]
             frame = frame[crop[2] : crop[3], crop[0] : crop[1]]
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -76,7 +76,7 @@ class Session:
     def detect_all(self, crop):
         for t in tqdm(self._trials):
             video = self.get_trial(t)
-            for i in tqdm(range(500, 800)):
+            for i in tqdm(range(550, 800)):
                 frame = video[i]
 
                 frame = frame[crop[2] : crop[3], crop[0] : crop[1]]

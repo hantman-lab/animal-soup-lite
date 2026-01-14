@@ -71,9 +71,19 @@ class ImguiBehavior(EdgeWindow):
         # reset button
         if imgui.button("Select Crop"):
             if self.rect_selector is None:
-                return
+                self.rect_selector = RectangleSelector(
+                    selection=self.current_crop,
+                    limits=(
+                        0,
+                        self.current_video[0].shape[1],
+                        0,
+                        self.current_video[0].shape[0],
+                    ),
+                    resizable=False,
+                )
+                self._figure[0, 0].add_graphic(self.rect_selector, center=False)
             print("new crop")
-            self.current_crop = self.rect_selector.selection
+            self.current_crop = [int(_) for _ in self.rect_selector.selection]
 
         imgui.same_line()
 
@@ -81,11 +91,15 @@ class ImguiBehavior(EdgeWindow):
             if self.rect_selector is None:
                 return
             self.rect_selector.selection = DefaultCrops.LIFT.value
+            self.current_crop = DefaultCrops.LIFT.value
 
         if imgui.button("View Detection"):
             frame_detected = self.session.detect_logger.df.loc[
                 self.current_index, "frame_detected"
             ]
+            if frame_detected is None:
+                print("No frame detected")
+                return
             FRAME_NUM = frame_detected
             self._figure[0, 0]["frame"].data[:] = self.session.current_video[
                 frame_detected
