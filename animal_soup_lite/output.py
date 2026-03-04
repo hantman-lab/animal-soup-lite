@@ -1,8 +1,9 @@
 import pandas as pd
 from datetime import datetime
 from pathlib import Path
+import numpy as np
 
-COLUMNS = ["trial_number", "frame_detected", "lift_ms"]
+COLUMNS = ["trial_number", "frame_detected", "lift_ms", "frame"]
 
 
 class DetectionLogger:
@@ -13,16 +14,20 @@ class DetectionLogger:
 
         # initialize
         for t in self.trials:
-            self.df.loc[len(self.df.index)] = [t, None, None]
+            self.df.loc[len(self.df.index)] = [t, None, None, None]
 
-    def log(self, trial: str, frame_detected: int):
+    def log(self, trial: str, frame_detected: int, frame: np.ndarray | None):
         print("Saving frame detected for trial {}".format(trial))
         # convert frame to ms
-        ms = int((frame_detected - 500) / 2)
+        ms = int((frame_detected - 500) * 2)
         # get df ix of trial being detected
         ix = self.trials.index(trial)
         # update
-        self.df.loc[ix, ["frame_detected", "lift_ms"]] = [frame_detected, ms]
+        self.df.loc[ix, ["frame_detected", "lift_ms", "frame"]] = [
+            frame_detected,
+            ms,
+            frame,
+        ]
 
     def save(self):
         """Save the dataframe to disk."""

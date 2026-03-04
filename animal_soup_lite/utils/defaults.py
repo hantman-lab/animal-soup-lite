@@ -2,5 +2,5 @@ from enum import Enum
 
 
 class DefaultCrops(Enum):
-    LIFT = [136, 155, 207, 220]
+    LIFT = [157, 177, 199, 212]
     GRAB = None

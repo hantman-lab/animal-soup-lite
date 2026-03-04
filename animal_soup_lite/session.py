@@ -63,27 +63,27 @@ class Session:
         return video
 
     def detect(self, crop):
-        for i in tqdm(range(550, 800)):
-            frame = self.current_video[i]
-            frame = frame[crop[2] : crop[3], crop[0] : crop[1]]
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        for i in tqdm(range(550, 900)):
+            orig_frame = self.current_video[i]
+            orig_frame = cv2.cvtColor(orig_frame, cv2.COLOR_RGB2GRAY)
+            frame = orig_frame[crop[2] : crop[3], crop[0] : crop[1]]
 
             if (frame != 0).sum() >= 180:
                 print("LIFT DETECTED")
-                self.detect_logger.log(self.current_trial, i)
+                self.detect_logger.log(self.current_trial, i, orig_frame)
                 break
 
     def detect_all(self, crop):
         for t in tqdm(self._trials):
             video = self.get_trial(t)
-            for i in tqdm(range(550, 800)):
-                frame = video[i]
+            for i in tqdm(range(550, 900)):
+                orig_frame = video[i]
+                orig_frame = cv2.cvtColor(orig_frame, cv2.COLOR_RGB2GRAY)
 
-                frame = frame[crop[2] : crop[3], crop[0] : crop[1]]
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                frame = orig_frame[crop[2] : crop[3], crop[0] : crop[1]]
 
                 if (frame != 0).sum() >= 180:
-                    self.detect_logger.log(t, i)
+                    self.detect_logger.log(t, i, orig_frame)
                     break
 
         self.detect_logger.save()
