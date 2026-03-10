@@ -50,6 +50,10 @@ class ImguiBehavior(EdgeWindow):
             FRAME_NUM = 0
             self._figure[0, 0]["frame"].data[:] = self.session.current_video[FRAME_NUM]
 
+        detection = self.session.get_detection_info()
+        imgui.text(f"Lift: {detection['lift']}")
+        imgui.text(f"Grab: {detection['grab']}")
+
         # section for lift
         self._center_label("Lift")
 
@@ -103,6 +107,7 @@ class ImguiBehavior(EdgeWindow):
             self._figure[0, 0]["frame"].data[:] = self.session.current_video[
                 frame_detected
             ]
+            FRAME_NUM = frame_detected
 
         # section for grab
         self._center_label("Grab")
@@ -157,13 +162,14 @@ class ImguiBehavior(EdgeWindow):
             self._figure[0, 0]["frame"].data[:] = self.session.current_video[
                 frame_detected
             ]
+            FRAME_NUM = frame_detected
 
         imgui.separator()
 
         # reset button
         if imgui.button("Detect All"):
             logger.info("DETECTING ALL TRIALS")
-            self.session.detect_all(self.current_lift_crop)
+            self.session.detect_all(self.current_lift_crop, self.current_grab_crop)
 
         if imgui.button("Save"):
             logger.info("SAVING")
