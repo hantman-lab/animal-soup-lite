@@ -1,7 +1,7 @@
 from fastplotlib.ui import EdgeWindow
 from fastplotlib import RectangleSelector
 from imgui_bundle import imgui
-from animal_soup_lite.utils import DefaultCrops
+from .utils import DefaultCrops, logger
 
 FRAME_NUM = 0
 
@@ -38,14 +38,14 @@ class ImguiBehavior(EdgeWindow):
 
         # reset button
         if imgui.button("Detect"):
-            print(f"Detecting for trial: {self.session.current_trial}")
+            logger.info(f"Detecting for trial: {self.session.current_trial}")
             self.session.detect(self.current_crop)
 
         imgui.same_line()
 
         # reset button
         if imgui.button("Detect All"):
-            print("DETECTING ALL TRIALS")
+            logger.info("DETECTING ALL TRIALS")
             self.session.detect_all(self.current_crop)
 
         # reset button
@@ -72,7 +72,7 @@ class ImguiBehavior(EdgeWindow):
         if imgui.button("Select Crop"):
             if self.rect_selector is None:
                 return
-            print("new crop")
+            logger.info("new crop")
             self.current_crop = [int(_) for _ in self.rect_selector.selection]
 
         imgui.same_line()
@@ -88,7 +88,7 @@ class ImguiBehavior(EdgeWindow):
                 self.current_index, "frame_detected"
             ]
             if frame_detected is None:
-                print("No frame detected")
+                logger.info("No frame detected")
                 return
             FRAME_NUM = frame_detected
             self._figure[0, 0]["frame"].data[:] = self.session.current_video[
@@ -96,7 +96,7 @@ class ImguiBehavior(EdgeWindow):
             ]
 
         if imgui.button("Save"):
-            print("SAVING")
+            logger.info("SAVING")
             self.session.detect_logger.save()
 
 
