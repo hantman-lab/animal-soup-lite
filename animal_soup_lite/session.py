@@ -1,6 +1,7 @@
 from pathlib import Path
 from tqdm import tqdm
 import cv2
+import sys
 
 from animal_soup_lite.output import DetectionLogger
 from animal_soup_lite.utils import LazyVideo
@@ -18,7 +19,9 @@ class Session:
         self._current_trial = self._trials[0]
         self._current_video = self.get_trial(self._current_trial)
 
-        self._detect_logger = DetectionLogger(self._output_dir, self._trials)
+        self._detect_logger = DetectionLogger(
+            self._output_dir, self._trials, self._prefix
+        )
 
         # Apply some config
         logger.setLevel("INFO")
@@ -58,8 +61,13 @@ class Session:
         # get trials by globbing
         trials = list()
         # only get the side trials
-        for f in self.video_dir.glob("*_side_v*.avi"):
+        videos = list(self.video_dir.glob("*_side_v*.avi"))
+        if len(videos) == 0:
+            logger.info("No video files found. Exiting.")
+            sys.exit(0)
+        for f in videos:
             trials.append(str(f)[-7:-4])
+        self._prefix = Path(f).stem.split("_s")[0]
         trials.sort()
         return trials
 
@@ -69,7 +77,7 @@ class Session:
         video = LazyVideo(trial_path)
         return video
 
-    def detect(self, crop):
+    def detect_lift(self, crop):
         try:
             for i in tqdm(range(550, 900)):
                 orig_frame = self.current_video[i]
@@ -78,25 +86,62 @@ class Session:
 
                 if (frame != 0).sum() >= 180:
                     logger.info("LIFT DETECTED")
-                    self.detect_logger.log(self.current_trial, i, orig_frame)
+                    self.detect_logger.log(self.current_trial, i, "lift")
+                    self.detect_logger.save()
                     break
         except Exception:
-            logger.info(f"Could not detect for trial {self.current_trial}")
+            logger.info(f"Could not detect lift for trial {self.current_trial}")
 
-    def detect_all(self, crop):
+    def detect_grab(self, crop):
+        try:
+            for i in tqdm(range(600, 1000)):
+                orig_frame = self.current_video[i]
+                orig_frame = cv2.cvtColor(orig_frame, cv2.COLOR_RGB2GRAY)
+                frame = orig_frame[crop[2] : crop[3], crop[0] : crop[1]]
+
+                if (frame != 0).sum() >= 150:
+                    logger.info("GRAB DETECTED")
+                    self.detect_logger.log(self.current_trial, i + 6, "grab")
+                    self.detect_logger.save()
+                    break
+        except Exception:
+            logger.info(f"Could not detect grab for trial {self.current_trial}")
+
+    def detect_all(self, lift_crop, grab_crop):
         for t in tqdm(self._trials):
             try:
                 video = self.get_trial(t)
-                for i in tqdm(range(550, 900)):
+                lift = 600
+                for i in range(550, 900):
                     orig_frame = video[i]
                     orig_frame = cv2.cvtColor(orig_frame, cv2.COLOR_RGB2GRAY)
-
-                    frame = orig_frame[crop[2] : crop[3], crop[0] : crop[1]]
+                    frame = orig_frame[
+                        lift_crop[2] : lift_crop[3], lift_crop[0] : lift_crop[1]
+                    ]
 
                     if (frame != 0).sum() >= 180:
-                        self.detect_logger.log(t, i, orig_frame)
+                        logger.info(f"LIFT DETECTED TRIAL {t}")
+                        self.detect_logger.log(t, i, "lift")
+                        lift = i
+                        break
+
+                for i in range(lift, 1000):
+                    orig_frame = video[i]
+                    orig_frame = cv2.cvtColor(orig_frame, cv2.COLOR_RGB2GRAY)
+                    frame = orig_frame[
+                        grab_crop[2] : grab_crop[3], grab_crop[0] : grab_crop[1]
+                    ]
+
+                    if (frame != 0).sum() >= 150:
+                        logger.info(f"GRAB DETECTED TRIAL {t}")
+                        self.detect_logger.log(t, i + 6, "grab")
                         break
             except Exception:
                 logger.info(f"Could not detect for trial {t}")
 
-        self.detect_logger.save()
+        logger.info(self.detect_logger.print())
+
+    def get_detection_info(self):
+        ix = self._trials.index(self.current_trial)
+        detection = self.detect_logger.df.loc[ix, ["lift_frame", "grab_frame"]]
+        return {"lift": detection["lift_frame"], "grab": detection["grab_frame"]}
