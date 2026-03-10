@@ -38,3 +38,12 @@ class DetectionLogger:
             )
         )
         logger.info(self.df.head(n=8))
+
+    def print(self):
+        output = list()
+        output.append("\n")
+        for _, r in self.df.iterrows():
+            s = f"Trial: {r['trial_number']}, Lift Frame: {r['lift_frame']}, Grab Frame: {r['grab_frame']}"
+            output.append(s)
+
+        logger.info("\n".join(output))

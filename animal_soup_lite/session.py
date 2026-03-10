@@ -139,7 +139,7 @@ class Session:
             except Exception:
                 logger.info(f"Could not detect for trial {t}")
 
-        logger.info(self.detect_logger.df.head(n=8))
+        logger.info(self.detect_logger.print())
 
     def get_detection_info(self):
         ix = self._trials.index(self.current_trial)

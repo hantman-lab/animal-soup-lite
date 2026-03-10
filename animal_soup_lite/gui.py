@@ -175,6 +175,11 @@ class ImguiBehavior(EdgeWindow):
             logger.info("SAVING")
             self.session.detect_logger.save()
 
+        imgui.same_line()
+
+        if imgui.button("Print"):
+            self.session.detect_logger.print()
+
 
 class ImguiSlider(EdgeWindow):
     def __init__(self, figure, size, location, title, session):
