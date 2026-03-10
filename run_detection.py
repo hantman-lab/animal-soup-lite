@@ -25,7 +25,6 @@ if __name__ == "__main__":
         type=str,
         help="Path to video directory (i.e. /reaganbullins2/ProjectionProjection/rb50/20250125/videos/)",
     )
-    parser.add_argument("output_dir", type=str, help="Path to output directory")
 
     args = parser.parse_args()
 
@@ -34,11 +33,7 @@ if __name__ == "__main__":
     if not video_dir.is_dir():
         raise FileNotFoundError(f"Video directory {video_dir} not found")
 
-    output_dir = Path(args.output_dir)
-    if not video_dir.is_dir():
-        raise FileNotFoundError(f"Video directory {video_dir} not found")
-
-    session = Session(video_dir, output_dir)
+    session = Session(video_dir)
 
     # make GUI instance
     gui = ImguiBehavior(
