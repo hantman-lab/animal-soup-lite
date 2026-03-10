@@ -69,7 +69,7 @@ class Session:
         video = LazyVideo(trial_path)
         return video
 
-    def detect(self, crop):
+    def detect_lift(self, crop):
         try:
             for i in tqdm(range(550, 900)):
                 orig_frame = self.current_video[i]
@@ -78,7 +78,21 @@ class Session:
 
                 if (frame != 0).sum() >= 180:
                     logger.info("LIFT DETECTED")
-                    self.detect_logger.log(self.current_trial, i, orig_frame)
+                    self.detect_logger.log(self.current_trial, i, "lift")
+                    break
+        except Exception:
+            logger.info(f"Could not detect for trial {self.current_trial}")
+
+    def detect_grab(self, crop):
+        try:
+            for i in tqdm(range(550, 900)):
+                orig_frame = self.current_video[i]
+                orig_frame = cv2.cvtColor(orig_frame, cv2.COLOR_RGB2GRAY)
+                frame = orig_frame[crop[2] : crop[3], crop[0] : crop[1]]
+
+                if (frame != 0).sum() >= 180:
+                    logger.info("LIFT DETECTED")
+                    self.detect_logger.log(self.current_trial, i, "grab")
                     break
         except Exception:
             logger.info(f"Could not detect for trial {self.current_trial}")
