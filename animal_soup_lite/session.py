@@ -120,7 +120,6 @@ class Session:
                     ]
 
                     if (frame != 0).sum() >= 180:
-                        logger.info(f"LIFT DETECTED TRIAL {t}")
                         self.detect_logger.log(t, i, "lift")
                         lift = i
                         break
@@ -133,13 +132,13 @@ class Session:
                     ]
 
                     if (frame != 0).sum() >= 150:
-                        logger.info(f"GRAB DETECTED TRIAL {t}")
                         self.detect_logger.log(t, i + 6, "grab")
                         break
             except Exception:
                 logger.info(f"Could not detect for trial {t}")
 
         logger.info(self.detect_logger.print())
+        self.detect_logger.save()
 
     def get_detection_info(self):
         ix = self._trials.index(self.current_trial)
