@@ -26,6 +26,8 @@ if __name__ == "__main__":
         help="Path to video directory (i.e. /reaganbullins2/ProjectionProjection/rb50/20250125/videos/)",
     )
 
+    parser.add_argument("--prefix", "-v", help="increase output verbosity")
+
     args = parser.parse_args()
 
     # check if video dir exists

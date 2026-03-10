@@ -18,7 +18,9 @@ class Session:
         self._current_trial = self._trials[0]
         self._current_video = self.get_trial(self._current_trial)
 
-        self._detect_logger = DetectionLogger(self._output_dir, self._trials)
+        self._detect_logger = DetectionLogger(
+            self._output_dir, self._trials, self._prefix
+        )
 
         # Apply some config
         logger.setLevel("INFO")
@@ -60,6 +62,7 @@ class Session:
         # only get the side trials
         for f in self.video_dir.glob("*_side_v*.avi"):
             trials.append(str(f)[-7:-4])
+        self._prefix = Path(f).stem.split("_s")[0]
         trials.sort()
         return trials
 

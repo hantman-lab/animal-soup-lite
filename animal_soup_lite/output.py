@@ -8,10 +8,11 @@ COLUMNS = ["trial_number", "lift_frame", "lift_ms", "grab_frame", "grab_ms"]
 
 
 class DetectionLogger:
-    def __init__(self, output_dir: Path | str, trials: list):
+    def __init__(self, output_dir: Path | str, trials: list, prefix: str):
         self.output_dir = Path(output_dir)
         self.trials = trials
         self.df = pd.DataFrame(columns=COLUMNS)
+        self._prefix = prefix
 
         # initialize
         for t in self.trials:
@@ -34,7 +35,7 @@ class DetectionLogger:
         """Save the dataframe to disk."""
         self.df.to_pickle(
             self.output_dir.joinpath(
-                f"detect_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.pkl"
+                f"{self._prefix}_detect_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.pkl"
             )
         )
         logger.info(self.df.head(n=8))
