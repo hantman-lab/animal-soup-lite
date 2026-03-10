@@ -61,6 +61,7 @@ class ImguiBehavior(EdgeWindow):
         if imgui.button("Detect##lift"):
             logger.info(f"Detecting for trial: {self.session.current_trial}")
             self.session.detect_lift(self.current_lift_crop)
+            self.session.detect_logger.save()
 
         # reset button
         if imgui.button("View Crop##lift"):
@@ -116,6 +117,7 @@ class ImguiBehavior(EdgeWindow):
         if imgui.button("Detect##grab"):
             logger.info(f"Detecting for trial: {self.session.current_trial}")
             self.session.detect_grab(self.current_grab_crop)
+            self.session.detect_logger.save()
 
         # reset button
         if imgui.button("View Crop##grab"):
@@ -164,7 +166,7 @@ class ImguiBehavior(EdgeWindow):
             ]
             FRAME_NUM = frame_detected
 
-        imgui.separator()
+        self._center_label("Miscellaneous")
 
         # reset button
         if imgui.button("Detect All"):
@@ -179,6 +181,11 @@ class ImguiBehavior(EdgeWindow):
 
         if imgui.button("Print"):
             self.session.detect_logger.print()
+
+        if imgui.button("Clear crop"):
+            if self.rect_selector is not None:
+                self._figure[0, 0].delete_graphic(self.rect_selector)
+                self.rect_selector = None
 
 
 class ImguiSlider(EdgeWindow):

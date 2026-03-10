@@ -1,5 +1,4 @@
 import pandas as pd
-from datetime import datetime
 from pathlib import Path
 
 from .utils import logger
@@ -32,12 +31,7 @@ class DetectionLogger:
 
     def save(self):
         """Save the dataframe to disk."""
-        self.df.to_pickle(
-            self.output_dir.joinpath(
-                f"{self._prefix}_detect_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.pkl"
-            )
-        )
-        logger.info(self.df.head(n=8))
+        self.df.to_pickle(self.output_dir.joinpath(f"{self._prefix}_detect.pkl"))
 
     def print(self):
         output = list()
@@ -47,3 +41,11 @@ class DetectionLogger:
             output.append(s)
 
         logger.info("\n".join(output))
+
+    def load(self, previous_run: Path, video_dir: Path):
+        self.df = pd.read_pickle(previous_run)
+
+        if self.df.attrs["video_dir"] != video_dir:
+            raise ValueError(
+                f"Trying to load previous run for a different video dir. Expected video dir was {self.df.attr['video_dir']}, but got {video_dir}"
+            )

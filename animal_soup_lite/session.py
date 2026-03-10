@@ -101,7 +101,7 @@ class Session:
 
                 if (frame != 0).sum() >= 150:
                     logger.info("GRAB DETECTED")
-                    self.detect_logger.log(self.current_trial, i + 4, "grab")
+                    self.detect_logger.log(self.current_trial, i + 6, "grab")
                     self.detect_logger.save()
                     break
         except Exception:
@@ -134,7 +134,7 @@ class Session:
 
                     if (frame != 0).sum() >= 150:
                         logger.info(f"GRAB DETECTED TRIAL {t}")
-                        self.detect_logger.log(t, i + 4, "grab")
+                        self.detect_logger.log(t, i + 6, "grab")
                         break
             except Exception:
                 logger.info(f"Could not detect for trial {t}")

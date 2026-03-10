@@ -26,7 +26,7 @@ if __name__ == "__main__":
         help="Path to video directory (i.e. /reaganbullins2/ProjectionProjection/rb50/20250125/videos/)",
     )
 
-    parser.add_argument("--prefix", "-v", help="increase output verbosity")
+    parser.add_argument("--previous_run", "-p", help="load previous output run")
 
     args = parser.parse_args()
 
@@ -36,6 +36,14 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"Video directory {video_dir} not found")
 
     session = Session(video_dir)
+    session.detect_logger.df.attrs["video_dir"] = video_dir
+    session.detect_logger.save()
+
+    if args.previous_run is not None:
+        if not Path(args.previous_run).is_file():
+            raise FileNotFoundError(f"Previous run {args.previous_run} not found")
+
+        session.detect_logger.load(args.previous_run, video_dir)
 
     # make GUI instance
     gui = ImguiBehavior(
