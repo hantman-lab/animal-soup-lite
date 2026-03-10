@@ -23,6 +23,8 @@ class ImguiBehavior(EdgeWindow):
 
         self.rect_selector = None
 
+        self._figure.renderer.add_event_handler(self._key_modifiers, "key_up")
+
     def _center_label(self, text: str):
         """Helper function to create a centered label bounded above and below by a separator."""
         # first separator
@@ -35,6 +37,56 @@ class ImguiBehavior(EdgeWindow):
         imgui.text(text)
         # second separator
         imgui.separator()
+
+    def _key_modifiers(self, ev):
+        global FRAME_NUM
+        if "Shift" in ev.modifiers:
+            print(ev.key)
+            match ev.key:
+                case "ArrowRight":
+                    self.current_index += 1
+                    if self.current_index >= len(self.session.trials):
+                        self.current_index = 0
+                    self.session.current_trial = self.current_index
+                    self._figure[0, 0]["frame"].data[:] = self.session.current_video[
+                        FRAME_NUM
+                    ]
+                case "ArrowLeft":
+                    self.current_index -= 1
+                    if self.current_index < 0:
+                        self.current_index = len(self.session.trials) - 1
+                    self.session.current_trial = self.current_index
+                    self._figure[0, 0]["frame"].data[:] = self.session.current_video[
+                        FRAME_NUM
+                    ]
+                case "M":  # mark grab
+                    self.session.detect_logger.log(
+                        self.session.current_trial, FRAME_NUM, "grab"
+                    )
+                    self.session.detect_logger.save()
+        else:
+            match ev.key:
+                case "ArrowRight":
+                    FRAME_NUM += 3
+                    if FRAME_NUM > self.current_video.shape[0] - 1:
+                        FRAME_NUM = 0
+                    self._figure[0, 0]["frame"].data[:] = self.session.current_video[
+                        FRAME_NUM
+                    ]
+                    self._figure[0, 0].auto_scale()
+                case "ArrowLeft":
+                    FRAME_NUM -= 3
+                    if FRAME_NUM < 0:
+                        FRAME_NUM = self.current_video.shape[0] - 1
+                    self._figure[0, 0]["frame"].data[:] = self.session.current_video[
+                        FRAME_NUM
+                    ]
+                    self._figure[0, 0].auto_scale()
+                case "m":  # mark lift
+                    self.session.detect_logger.log(
+                        self.session.current_trial, FRAME_NUM, "lift"
+                    )
+                    self.session.detect_logger.save()
 
     def update(self):
         global FRAME_NUM
