@@ -139,8 +139,8 @@ class ImguiBehavior(EdgeWindow):
         if imgui.button("Select Crop##lift"):
             if self.rect_selector is None:
                 return
-            logger.info("new crop")
             self.current_lift_crop = [int(_) for _ in self.rect_selector.selection]
+            logger.info(f"new crop: {self.current_lift_crop}")
 
         imgui.same_line()
 
@@ -195,8 +195,9 @@ class ImguiBehavior(EdgeWindow):
         if imgui.button("Select Crop##grab"):
             if self.rect_selector is None:
                 return
-            logger.info("new crop")
+
             self.current_grab_crop = [int(_) for _ in self.rect_selector.selection]
+            logger.info(f"new crop: {self.current_grab_crop}")
 
         imgui.same_line()
 
