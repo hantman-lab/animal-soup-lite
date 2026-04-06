@@ -17,7 +17,7 @@ pip install -e .
 ## Usage 
 
 ```bash
-python ./run_detector.py /path/to/session_video_directory/ /path/to/output_directory/
+python ./run_detector.py /path/to/session_video_directory/
 ```
 
-For example: ```python ./run_detector.py /wasabi/reaganbullins2/ProjectProject/rb50/20250125/videos/ ./```
+For example: ```python ./run_detector.py /wasabi/reaganbullins2/ProjectProject/rb50/20250125/videos/```
