@@ -41,7 +41,6 @@ class ImguiBehavior(EdgeWindow):
     def _key_modifiers(self, ev):
         global FRAME_NUM
         if "Shift" in ev.modifiers:
-            print(ev.key)
             match ev.key:
                 case "ArrowRight":
                     self.current_index += 1
@@ -63,6 +62,8 @@ class ImguiBehavior(EdgeWindow):
                     self.session.detect_logger.log(
                         self.session.current_trial, FRAME_NUM, "grab"
                     )
+                    self.session.detect_logger.save()
+                case "S": # save
                     self.session.detect_logger.save()
         else:
             match ev.key:

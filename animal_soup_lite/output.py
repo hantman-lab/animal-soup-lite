@@ -32,6 +32,7 @@ class DetectionLogger:
     def save(self):
         """Save the dataframe to disk."""
         self.df.to_pickle(self.output_dir.joinpath(f"{self._prefix}_detect.pkl"))
+        logger.info("Saved detection dataframe to disk")
 
     def print(self):
         output = list()
