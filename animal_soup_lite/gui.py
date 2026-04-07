@@ -63,7 +63,7 @@ class ImguiBehavior(EdgeWindow):
                         self.session.current_trial, FRAME_NUM, "grab"
                     )
                     self.session.detect_logger.save()
-                case "S": # save
+                case "S":  # save
                     self.session.detect_logger.save()
         else:
             match ev.key:
