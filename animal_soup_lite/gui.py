@@ -1,7 +1,7 @@
 from fastplotlib.ui import EdgeWindow
 from fastplotlib import RectangleSelector
 from imgui_bundle import imgui
-from .utils import DefaultCrops, logger
+from .utils import logger, defaults
 
 FRAME_NUM = 0
 
@@ -18,8 +18,11 @@ class ImguiBehavior(EdgeWindow):
 
         self._figure[0, 0].add_image(self.current_video[0], cmap="gray", name="frame")
 
-        self.current_lift_crop = DefaultCrops.LIFT.value
-        self.current_grab_crop = DefaultCrops.GRAB.value
+        # try to load from disk is possible
+        defaults.load()
+
+        self.current_lift_crop = defaults.CONFIG["LIFT"]
+        self.current_grab_crop = defaults.CONFIG["GRAB"]
 
         self.rect_selector = None
 
@@ -148,8 +151,14 @@ class ImguiBehavior(EdgeWindow):
         if imgui.button("Reset Crop##lift"):
             if self.rect_selector is None:
                 return
-            self.rect_selector.selection = DefaultCrops.LIFT.value
-            self.current_lift_crop = DefaultCrops.LIFT.value
+            self.rect_selector.selection = defaults.CONFIG["LIFT"]
+            self.current_lift_crop = defaults.CONFIG["LIFT"]
+
+        if imgui.button("Save Crop##lift"):
+            if self.rect_selector is not None:
+                self.current_lift_crop = [int(_) for _ in self.rect_selector.selection]
+                defaults.CONFIG["LIFT"] = self.current_lift_crop
+                defaults.save()
 
         if imgui.button("View Detection##lift"):
             frame_detected = self.session.detect_logger.df.loc[
@@ -204,8 +213,14 @@ class ImguiBehavior(EdgeWindow):
         if imgui.button("Reset Crop##grab"):
             if self.rect_selector is None:
                 return
-            self.rect_selector.selection = DefaultCrops.GRAB.value
-            self.current_grab_crop = DefaultCrops.GRAB.value
+            self.rect_selector.selection = defaults.CONFIG["GRAB"]
+            self.current_grab_crop = defaults.CONFIG["GRAB"]
+
+        if imgui.button("Save Crop##grab"):
+            if self.rect_selector is not None:
+                self.current_grab_crop = [int(_) for _ in self.rect_selector.selection]
+                defaults.CONFIG["GRAB"] = self.current_grab_crop
+                defaults.save()
 
         if imgui.button("View Detection##grab"):
             frame_detected = self.session.detect_logger.df.loc[
