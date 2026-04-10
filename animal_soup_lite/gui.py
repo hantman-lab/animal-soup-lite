@@ -24,7 +24,8 @@ class ImguiBehavior(EdgeWindow):
         self.current_lift_crop = defaults.CONFIG["LIFT"]
         self.current_grab_crop = defaults.CONFIG["GRAB"]
 
-        self.rect_selector = None
+        self.rect_selector_lift = None
+        self.rect_selector_grab = None
 
         self._figure.renderer.add_event_handler(self._key_modifiers, "key_up")
 
@@ -122,8 +123,8 @@ class ImguiBehavior(EdgeWindow):
         # reset button
         if imgui.button("View Crop##lift"):
             # check to see if rectangle selector already exists
-            if self.rect_selector is None:
-                self.rect_selector = RectangleSelector(
+            if self.rect_selector_lift is None:
+                self.rect_selector_lift = RectangleSelector(
                     selection=self.current_lift_crop,
                     limits=(
                         0,
@@ -131,32 +132,35 @@ class ImguiBehavior(EdgeWindow):
                         0,
                         self.current_video[0].shape[0],
                     ),
-                    resizable=False,
+                    resizable=True,
+                    edge_thickness=4,
                 )
-                self._figure[0, 0].add_graphic(self.rect_selector, center=False)
+                self._figure[0, 0].add_graphic(self.rect_selector_lift, center=False)
             else:
-                self.rect_selector.selection = self.current_lift_crop
+                self.rect_selector_lift.selection = self.current_lift_crop
 
         imgui.same_line()
 
         # reset button
         if imgui.button("Select Crop##lift"):
-            if self.rect_selector is None:
+            if self.rect_selector_lift is None:
                 return
-            logger.info("new crop")
-            self.current_lift_crop = [int(_) for _ in self.rect_selector.selection]
+            logger.info("New lift crop")
+            self.current_lift_crop = [int(_) for _ in self.rect_selector_lift.selection]
 
         imgui.same_line()
 
         if imgui.button("Reset Crop##lift"):
-            if self.rect_selector is None:
+            if self.rect_selector_lift is None:
                 return
-            self.rect_selector.selection = defaults.CONFIG["LIFT"]
+            self.rect_selector_lift.selection = defaults.CONFIG["LIFT"]
             self.current_lift_crop = defaults.CONFIG["LIFT"]
 
         if imgui.button("Save Crop##lift"):
-            if self.rect_selector is not None:
-                self.current_lift_crop = [int(_) for _ in self.rect_selector.selection]
+            if self.rect_selector_lift is not None:
+                self.current_lift_crop = [
+                    int(_) for _ in self.rect_selector_lift.selection
+                ]
                 defaults.CONFIG["LIFT"] = self.current_lift_crop
                 defaults.save()
 
@@ -172,6 +176,12 @@ class ImguiBehavior(EdgeWindow):
             ]
             FRAME_NUM = frame_detected
 
+        imgui.text("Thresh:")
+        imgui.same_line()
+        changed, val = imgui.input_int("##Threshlift", self.session.lift_threshold)
+        if changed:
+            self.session.lift_threshold = val
+
         # section for grab
         self._center_label("Grab")
 
@@ -184,8 +194,8 @@ class ImguiBehavior(EdgeWindow):
         # reset button
         if imgui.button("View Crop##grab"):
             # check to see if rectangle selector already exists
-            if self.rect_selector is None:
-                self.rect_selector = RectangleSelector(
+            if self.rect_selector_grab is None:
+                self.rect_selector_grab = RectangleSelector(
                     selection=self.current_grab_crop,
                     limits=(
                         0,
@@ -193,32 +203,37 @@ class ImguiBehavior(EdgeWindow):
                         0,
                         self.current_video[0].shape[0],
                     ),
-                    resizable=False,
+                    resizable=True,
+                    edge_thickness=4,
+                    edge_color=(0.5, 0.0, 0.0),
+                    vertex_color=(0.7, 0.0, 0.0),
                 )
-                self._figure[0, 0].add_graphic(self.rect_selector, center=False)
+                self._figure[0, 0].add_graphic(self.rect_selector_grab, center=False)
             else:
-                self.rect_selector.selection = self.current_grab_crop
+                self.rect_selector_grab.selection = self.current_grab_crop
 
         imgui.same_line()
 
         # reset button
         if imgui.button("Select Crop##grab"):
-            if self.rect_selector is None:
+            if self.rect_selector_grab is None:
                 return
-            logger.info("new crop")
-            self.current_grab_crop = [int(_) for _ in self.rect_selector.selection]
+            logger.info("New grab crop")
+            self.current_grab_crop = [int(_) for _ in self.rect_selector_grab.selection]
 
         imgui.same_line()
 
         if imgui.button("Reset Crop##grab"):
-            if self.rect_selector is None:
+            if self.rect_selector_grab is None:
                 return
-            self.rect_selector.selection = defaults.CONFIG["GRAB"]
+            self.rect_selector_grab.selection = defaults.CONFIG["GRAB"]
             self.current_grab_crop = defaults.CONFIG["GRAB"]
 
         if imgui.button("Save Crop##grab"):
-            if self.rect_selector is not None:
-                self.current_grab_crop = [int(_) for _ in self.rect_selector.selection]
+            if self.rect_selector_grab is not None:
+                self.current_grab_crop = [
+                    int(_) for _ in self.rect_selector_grab.selection
+                ]
                 defaults.CONFIG["GRAB"] = self.current_grab_crop
                 defaults.save()
 
@@ -233,6 +248,12 @@ class ImguiBehavior(EdgeWindow):
                 frame_detected
             ]
             FRAME_NUM = frame_detected
+
+        imgui.text("Thresh:")
+        imgui.same_line()
+        changed, val = imgui.input_int("##Threshgrab", self.session.grab_threshold)
+        if changed:
+            self.session.grab_threshold = val
 
         self._center_label("Miscellaneous")
 
@@ -251,9 +272,12 @@ class ImguiBehavior(EdgeWindow):
             self.session.detect_logger.print()
 
         if imgui.button("Clear crop"):
-            if self.rect_selector is not None:
-                self._figure[0, 0].delete_graphic(self.rect_selector)
-                self.rect_selector = None
+            if self.rect_selector_lift is not None:
+                self._figure[0, 0].delete_graphic(self.rect_selector_lift)
+                self.rect_selector_lift = None
+            if self.rect_selector_grab is not None:
+                self._figure[0, 0].delete_graphic(self.rect_selector_grab)
+                self.rect_selector_grab = None
 
 
 class ImguiSlider(EdgeWindow):

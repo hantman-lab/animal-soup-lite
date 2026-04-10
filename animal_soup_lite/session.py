@@ -23,6 +23,9 @@ class Session:
             self._output_dir, self._trials, self._prefix
         )
 
+        self.lift_threshold = 180
+        self.grab_threshold = 150
+
         # Apply some config
         logger.setLevel("INFO")
         setup_log_file_handler(Path("./logs"))
@@ -51,6 +54,22 @@ class Session:
         self._current_trial = self._trials[index]
         logger.info("Changing video")
         self._current_video = self.get_trial(self._current_trial)
+
+    @property
+    def lift_threshold(self):
+        return self.lift_threshold
+
+    @lift_threshold.setter
+    def lift_threshold(self, value: int):
+        self.lift_threshold = value
+
+    @property
+    def grab_threshold(self):
+        return self.grab_threshold
+
+    @grab_threshold.setter
+    def grab_threshold(self, value: int):
+        self.grab_threshold = value
 
     @property
     def current_video(self):
@@ -84,7 +103,7 @@ class Session:
                 orig_frame = cv2.cvtColor(orig_frame, cv2.COLOR_RGB2GRAY)
                 frame = orig_frame[crop[2] : crop[3], crop[0] : crop[1]]
 
-                if (frame != 0).sum() >= 180:
+                if (frame != 0).sum() >= self.lift_threshold:
                     logger.info("LIFT DETECTED")
                     self.detect_logger.log(self.current_trial, i, "lift")
                     self.detect_logger.save()
@@ -99,7 +118,7 @@ class Session:
                 orig_frame = cv2.cvtColor(orig_frame, cv2.COLOR_RGB2GRAY)
                 frame = orig_frame[crop[2] : crop[3], crop[0] : crop[1]]
 
-                if (frame != 0).sum() >= 150:
+                if (frame != 0).sum() >= self.grab_threshold:
                     logger.info("GRAB DETECTED")
                     self.detect_logger.log(self.current_trial, i + 6, "grab")
                     self.detect_logger.save()
