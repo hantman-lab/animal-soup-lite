@@ -23,8 +23,8 @@ class Session:
             self._output_dir, self._trials, self._prefix
         )
 
-        self.lift_threshold = 180
-        self.grab_threshold = 150
+        self._lift_threshold = 180
+        self._grab_threshold = 150
 
         # Apply some config
         logger.setLevel("INFO")
@@ -57,19 +57,19 @@ class Session:
 
     @property
     def lift_threshold(self):
-        return self.lift_threshold
+        return self._lift_threshold
 
     @lift_threshold.setter
     def lift_threshold(self, value: int):
-        self.lift_threshold = value
+        self._lift_threshold = value
 
     @property
     def grab_threshold(self):
-        return self.grab_threshold
+        return self._grab_threshold
 
     @grab_threshold.setter
     def grab_threshold(self, value: int):
-        self.grab_threshold = value
+        self._grab_threshold = value
 
     @property
     def current_video(self):
