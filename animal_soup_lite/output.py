@@ -31,7 +31,7 @@ class DetectionLogger:
 
     def save(self):
         """Save the dataframe to disk."""
-        self.df.to_pickle(self.output_dir.joinpath(f"{self._prefix}_detect.pkl"))
+        self.df.to_csv(self.output_dir.joinpath(f"{self._prefix}_detect.csv"))
         logger.info("Saved detection dataframe to disk")
 
     def print(self):
@@ -44,7 +44,7 @@ class DetectionLogger:
         logger.info("\n".join(output))
 
     def load(self, previous_run: Path, video_dir: Path):
-        self.df = pd.read_pickle(previous_run)
+        self.df = pd.read_csv(previous_run)
 
         if self.df.attrs["video_dir"] != video_dir:
             raise ValueError(

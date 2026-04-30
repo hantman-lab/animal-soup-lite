@@ -138,7 +138,7 @@ class Session:
                         lift_crop[2] : lift_crop[3], lift_crop[0] : lift_crop[1]
                     ]
 
-                    if (frame != 0).sum() >= 180:
+                    if (frame != 0).sum() >= self.lift_threshold:
                         self.detect_logger.log(t, i, "lift")
                         lift = i
                         break
@@ -150,7 +150,7 @@ class Session:
                         grab_crop[2] : grab_crop[3], grab_crop[0] : grab_crop[1]
                     ]
 
-                    if (frame != 0).sum() >= 150:
+                    if (frame != 0).sum() >= self.grab_threshold:
                         self.detect_logger.log(t, i + 6, "grab")
                         break
             except Exception:
